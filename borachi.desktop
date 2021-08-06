@@ -1,0 +1,9 @@
+[Desktop Entry]
+GenericName=Borachi
+Name=Borachi
+Exec=borachi %U
+Icon=borachi
+Type=Application
+Terminal=false
+Categories=Utility;
+Comment=Bypass NAT using bore.network
