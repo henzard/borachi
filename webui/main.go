@@ -86,13 +86,27 @@ func info(rw http.ResponseWriter, r *http.Request) {
 	<tr>
 		<th>Local</th>
 		<td>`+html.EscapeString(client.LocalEndpoint.String())+`</td>
+	</tr>
 	<tr>
 		<th>Remote</th>
 		<td>`+html.EscapeString(client.RemoteEndpoint.String())+`</td>
-	<tr>
+	</tr>
 	<tr>
 		<th>Server</th>
 		<td>`+html.EscapeString(client.ServerEndpoint.String())+`</td>
+	</tr>
+	<tr>
+		<th>TCP</th>
+		<td>`+html.EscapeString(client.RemoteData.DirectTCP)+`</td>
+	</tr>
+	<tr>
+		<th>HTTP</th>
+		<td>`+html.EscapeString(client.RemoteData.HTTPurl)+`</td>
+	</tr>
+	<tr>
+		<th>HTTP</th>
+		<td>`+html.EscapeString(client.RemoteData.HTTPSurl)+`</td>
+	</tr>
 </table>
 <meta http-equiv="Refresh" content="1; url='/info'" />`))
 
@@ -101,10 +115,11 @@ func info(rw http.ResponseWriter, r *http.Request) {
 func runclient(reconnect string) {
 connect:
 	if err := client.Run(); err != nil {
-		if reconnect == "true" {
+		if reconnect != "true" {
 			log.Fatal(err)
 		}
 		serr = "connection failed due: " + err.Error() + "reconnecting in 5s..."
+		log.Println(serr)
 		time.Sleep(time.Second * 5)
 		goto connect
 	}
