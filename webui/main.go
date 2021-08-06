@@ -110,8 +110,8 @@ func info(rw http.ResponseWriter, r *http.Request) {
 		<td>`+strings.Join(strings.Split(html.EscapeString(client.RemoteData.HTTPurl), ":")[0:2], ":")+`</td>
 	</tr>
 	<tr>
-		<th>HTTP</th>
-		<td>`+strings.Join(strings.Split(html.EscapeString(client.RemoteData.HTTPurl), ":")[0:2], ":")+`</td>
+		<th>HTTPS</th>
+		<td>`+strings.Join(strings.Split(html.EscapeString(client.RemoteData.HTTPSurl), ":")[0:2], ":")+`</td>
 	</tr>
 </table>
 <b>`+serr+`</b>
