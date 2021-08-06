@@ -2,7 +2,7 @@ image: mrcyjanek/goprod:latest
 
 script:
   - mkdir -p /usr/share/icons/hicolor/scalable/apps/
-  - goprod -combo="linux/amd64;linux/386;linux/arm;linux/arm64;windows/amd64;windows/386" -binname="borachi" -version="1.0.0"
+  - goprod -combo="darwin/amd64;linux/amd64;linux/386;linux/arm;linux/arm64;windows/amd64;windows/386" -binname="borachi" -version="1.0.0"
   - goprod -combo="android/arm;android/386;android/arm64;android/amd64" -tags="android" -binname="borachi" -version="1.0.0" -ldflags="-X webui.Port=3414" -package=true -appport=3414
   - cp build/deb/*.deb /apt/
   - cp build/bin/* /archive

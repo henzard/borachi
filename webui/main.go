@@ -37,7 +37,7 @@ func Run() {
 }
 
 func message(title string, content string) []byte {
-	return []byte(fmt.Sprintf(template, title, content))
+	return []byte(fmt.Sprintf(template, title, content, "%"))
 }
 
 func run(rw http.ResponseWriter, r *http.Request) {
@@ -76,11 +76,21 @@ func run(rw http.ResponseWriter, r *http.Request) {
 		ID:           r.PostFormValue("ID"),
 		KeepAlive:    r.PostFormValue("KeepAlive") == "true",
 	})
-	rw.Write(message("Starting...", `Please wait, your NAT limitation is about to be gone... <meta http-equiv="Refresh" content="5; url='/info'" />`))
+	rw.Write(message("Starting...", `Please wait, your NAT limitation is about to be gone... <meta http-equiv="Refresh" content="0; url='/info'" />`))
 	go runclient(r.PostFormValue("AutoReconnect"))
 }
 
 func info(rw http.ResponseWriter, r *http.Request) {
+	if len(strings.Split(html.EscapeString(client.RemoteData.DirectTCP), ":")) < 2 {
+		rw.Write(message("Info", `We are still loading.. please wait. <meta http-equiv="Refresh" content="1; url='/info'" />`))
+		return
+	}
+	var tcp string
+	if len(strings.Split(html.EscapeString(client.RemoteData.DirectTCP), ":")) == 4 {
+		tcp = strings.Join(strings.Split(html.EscapeString(client.RemoteData.DirectTCP), ":")[0:2], ":") + ":" + strings.Split(html.EscapeString(client.RemoteData.DirectTCP), ":")[3]
+	} else {
+		tcp = html.EscapeString(client.RemoteData.DirectTCP)
+	}
 	rw.Write(message("Info", `
 <table>
 	<tr>
@@ -88,27 +98,24 @@ func info(rw http.ResponseWriter, r *http.Request) {
 		<td>`+html.EscapeString(client.LocalEndpoint.String())+`</td>
 	</tr>
 	<tr>
-		<th>Remote</th>
-		<td>`+html.EscapeString(client.RemoteEndpoint.String())+`</td>
-	</tr>
-	<tr>
 		<th>Server</th>
 		<td>`+html.EscapeString(client.ServerEndpoint.String())+`</td>
 	</tr>
 	<tr>
 		<th>TCP</th>
-		<td>`+html.EscapeString(client.RemoteData.DirectTCP)+`</td>
+		<td>`+tcp+`</td>
 	</tr>
 	<tr>
 		<th>HTTP</th>
-		<td>`+html.EscapeString(client.RemoteData.HTTPurl)+`</td>
+		<td>`+strings.Join(strings.Split(html.EscapeString(client.RemoteData.HTTPurl), ":")[0:2], ":")+`</td>
 	</tr>
 	<tr>
 		<th>HTTP</th>
-		<td>`+html.EscapeString(client.RemoteData.HTTPSurl)+`</td>
+		<td>`+strings.Join(strings.Split(html.EscapeString(client.RemoteData.HTTPurl), ":")[0:2], ":")+`</td>
 	</tr>
 </table>
-<meta http-equiv="Refresh" content="1; url='/info'" />`))
+<b>`+serr+`</b>
+<meta http-equiv="Refresh" content="5; url='/info'" />`))
 
 }
 
@@ -116,9 +123,9 @@ func runclient(reconnect string) {
 connect:
 	if err := client.Run(); err != nil {
 		if reconnect != "true" {
-			log.Fatal(err)
+			return
 		}
-		serr = "connection failed due: " + err.Error() + "reconnecting in 5s..."
+		serr = time.Now().String() + ": connection failed due: " + err.Error() + " reconnecting in 5s..."
 		log.Println(serr)
 		time.Sleep(time.Second * 5)
 		goto connect
